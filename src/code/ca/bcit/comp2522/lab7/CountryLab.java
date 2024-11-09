@@ -2,16 +2,8 @@ package ca.bcit.comp2522.lab7;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.nio.file.*;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -100,13 +92,7 @@ public class CountryLab
          System.out.println("Folder exists! " + rootDirPath);
       } else
       {
-         try
-         {
-            Files.createDirectory(rootDirPath);
-         } catch (final IOException e)
-         {
-            System.out.println("Error creating folder! " + rootDirPath);
-         }
+         generateFolders(rootDirPath);
       }
 
       subDirPathResolved = rootDirPath.resolve("matches");
@@ -116,13 +102,7 @@ public class CountryLab
          System.out.println("Subfolder already exists!");
       } else
       {
-         try
-         {
-            Files.createDirectories(subDirPathResolved);
-         } catch (final IOException e)
-         {
-            System.out.println("Error creating subfolder " + subDirPathResolved);
-         }
+         generateFolders(subDirPathResolved);
       }
 
       outputPath = subDirPath.resolve(fileName);
@@ -153,6 +133,17 @@ public class CountryLab
       return outputPath;
    }
 
+   private static void generateFolders(final Path path)
+   {
+      try
+      {
+         Files.createDirectories(path);
+      } catch (final IOException e)
+      {
+         System.out.println("Error creating folder! " + path);
+      }
+   }
+
    /**
     * Filters out null Country objects and those with null or blank names from the given list.
     *
@@ -173,8 +164,8 @@ public class CountryLab
     * @param outputPath the path of the output file
     * @param countries  the list of Country objects to filter
     */
-   @SuppressWarnings("checkstyle:SeparatorWrap")
-   private static void writeLongCountryName(final Path outputPath, final List<Country> countries)
+   private static void writeLongCountryName(final Path outputPath,
+                                            final List<Country> countries)
    {
       final List<String>  filteredCountryNames;
 
@@ -183,16 +174,10 @@ public class CountryLab
               .filter(c -> c.getName().length() > 10)
               .forEach(c -> filteredCountryNames.add(c.getName()));
 
-      try
-      {
-         Files.writeString(outputPath, "********* Long country name ***********" +
-                           System.lineSeparator(),
-                           StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-         Files.write(outputPath, filteredCountryNames, StandardOpenOption.APPEND);
-      } catch(final IOException e)
-      {
-         System.out.println("Error writing country name longer than 10 chars, " + e.getMessage());
-      }
+      writeListToFile(outputPath, "Country names longer than 10 characters:" +
+              System.lineSeparator(),
+              filteredCountryNames,
+              StandardOpenOption.CREATE, StandardOpenOption.APPEND);
    }
 
    /**
@@ -201,7 +186,8 @@ public class CountryLab
     * @param outputPath the path of the output file
     * @param countries  the list of Country objects to filter
     */
-   private static void writeShortCountryNames(final Path outputPath, final List<Country> countries)
+   private static void writeShortCountryNames(final Path outputPath,
+                                              final List<Country> countries)
    {
       final List<String> filteredCountryNames;
       final Stream<Country> countryStream;
@@ -209,18 +195,12 @@ public class CountryLab
       filteredCountryNames = new ArrayList<>();
       countryStream = filteredCountries(countries);
 
-      countryStream.filter(c -> c.getName().length() < 5).forEach(c -> filteredCountryNames.add(c.getName()));
+      countryStream.filter(c -> c.getName().length() < 5)
+              .forEach(c -> filteredCountryNames.add(c.getName()));
 
-      try
-      {
-         Files.writeString(outputPath,
-                 System.lineSeparator() + "*******Short Country Names*******" + System.lineSeparator(),
-                 StandardOpenOption.APPEND);
-         Files.write(outputPath, filteredCountryNames, StandardOpenOption.APPEND);
-      } catch (final IOException e)
-      {
-         System.out.println("Error writing short country names: " + e.getMessage());
-      }
+      writeListToFile(outputPath, System.lineSeparator() +
+                        "*******Short Country Names*******" + System.lineSeparator(),
+                        filteredCountryNames, StandardOpenOption.APPEND);
    }
 
    /**
@@ -229,7 +209,8 @@ public class CountryLab
     * @param outputPath the path of the output file
     * @param countries  the list of Country objects to filter
     */
-   private static void writeCountryNameStartsWithA(final Path outputPath, final List<Country> countries)
+   private static void writeCountryNameStartsWithA(final Path outputPath,
+                                                   final List<Country> countries)
    {
       final List<String> countryNameStartsWithA;
 
@@ -239,16 +220,10 @@ public class CountryLab
               .filter(c -> c.getName().startsWith("A"))
               .forEach(c -> countryNameStartsWithA.add(c.getName()));
 
-      try
-      {
-         Files.writeString(outputPath, System.lineSeparator() +
-                           "********* Country Name Starts With 'A' ***********" +
-                           System.lineSeparator(), StandardOpenOption.APPEND);
-         Files.write(outputPath, countryNameStartsWithA, StandardOpenOption.APPEND);
-      } catch(final IOException e)
-      {
-         System.out.println("Error writing country name starting with 'A' to file. " + e.getMessage());
-      }
+      writeListToFile(outputPath, System.lineSeparator() +
+              "Country names starting with 'A':" +
+              System.lineSeparator(),
+              countryNameStartsWithA, StandardOpenOption.APPEND);
    }
 
    /**
@@ -257,7 +232,8 @@ public class CountryLab
     * @param outputPath the path of the output file
     * @param countries  the list of Country objects to filter
     */
-   private static void writeCountryNameEndingWithLand(final Path outputPath, final List<Country> countries)
+   private static void writeCountryNameEndingWithLand(final Path outputPath,
+                                                      final List<Country> countries)
    {
       final List<String> countryNameEndsWithLand;
 
@@ -267,16 +243,10 @@ public class CountryLab
               .filter(c -> c.getName().endsWith("land"))
               .forEach(c -> countryNameEndsWithLand.add(c.getName()));
 
-      try
-      {
-         Files.writeString(outputPath, System.lineSeparator() +
-                           "********* Country name ends with 'land' ***********" +
-                           System.lineSeparator(), StandardOpenOption.APPEND);
-         Files.write(outputPath, countryNameEndsWithLand, StandardOpenOption.APPEND);
-      } catch(final IOException e)
-      {
-         System.out.println("Error writing country name ending with 'land' " + e.getMessage());
-      }
+      writeListToFile(outputPath, System.lineSeparator() +
+              "********* Country name ends with 'land' ***********" +
+              System.lineSeparator(),
+              countryNameEndsWithLand, StandardOpenOption.APPEND);
    }
 
    /**
@@ -285,7 +255,8 @@ public class CountryLab
     * @param outputPath the path of the output file
     * @param countries  the list of Country objects to filter
     */
-   private static void writeCountryNamesContainingUnited(final Path outputPath, final List<Country> countries)
+   private static void writeCountryNamesContainingUnited(final Path outputPath,
+                                                         final List<Country> countries)
    {
       final List<String> filteredCountryNames;
       final Stream<Country> countryStream;
@@ -296,16 +267,10 @@ public class CountryLab
       countryStream.filter(c -> c.getName().toLowerCase().contains("united"))
               .forEach(c -> filteredCountryNames.add(c.getName()));
 
-      try
-      {
-         Files.writeString(outputPath,
-                 System.lineSeparator() + "*******Countries Containing United*******" + System.lineSeparator(),
-                 StandardOpenOption.APPEND);
-         Files.write(outputPath, filteredCountryNames, StandardOpenOption.APPEND);
-      } catch (final IOException e)
-      {
-         System.out.println("Error writing countries containing united: " + e.getMessage());
-      }
+      writeListToFile(outputPath, System.lineSeparator() +
+                                    "*******Countries Containing United*******" +
+                                    System.lineSeparator(),
+                                    filteredCountryNames, StandardOpenOption.APPEND);
    }
 
    /**
@@ -314,7 +279,8 @@ public class CountryLab
     * @param outputPath the path of the output file
     * @param countries  the list of Country objects to sort
     */
-   private static void writeInAscendingOrder(final Path outputPath, final List<Country> countries)
+   private static void writeInAscendingOrder(final Path outputPath,
+                                             final List<Country> countries)
    {
       final List<String> filteredCountryNames;
       final Stream<Country> countryStream;
@@ -325,16 +291,11 @@ public class CountryLab
       countryStream.sorted(Comparator.comparing(Country::getName))
               .forEachOrdered(c -> filteredCountryNames.add(c.getName()));
 
-      try
-      {
-         Files.writeString(outputPath,
-                 System.lineSeparator() + "*******Countries Sorted By Name (ASC)*******" + System.lineSeparator(),
-                 StandardOpenOption.APPEND);
-         Files.write(outputPath, filteredCountryNames, StandardOpenOption.APPEND);
-      } catch (final IOException e)
-      {
-         System.out.println("Error sorting by name ascending: " + e.getMessage());
-      }
+      writeListToFile(outputPath, System.lineSeparator() +
+                                    "********* Sorted Country Name (DSC) *********" +
+                                    System.lineSeparator(),
+                                    filteredCountryNames,
+                                    StandardOpenOption.APPEND);
    }
 
    /**
@@ -343,7 +304,8 @@ public class CountryLab
     * @param outputPath the path of the output file
     * @param countries  the list of Country objects to sort
     */
-   private static void writeInDescendingOrder(final Path outputPath, final List<Country> countries)
+   private static void writeInDescendingOrder(final Path outputPath,
+                                              final List<Country> countries)
    {
       final List<String> descendingSortedCountries;
 
@@ -353,16 +315,11 @@ public class CountryLab
               .sorted(Comparator.comparing(Country::getName).reversed())
               .forEachOrdered(c -> descendingSortedCountries.add(c.getName()));
 
-      try
-      {
-         Files.writeString(outputPath, System.lineSeparator() +
-                           "********* Sorted Country Name (DSC) *********" +
-                           System.lineSeparator(), StandardOpenOption.APPEND);
-         Files.write(outputPath, descendingSortedCountries, StandardOpenOption.APPEND);
-      } catch(final IOException e)
-      {
-         System.out.println("Error writing sorted country names to file. " + e.getMessage());
-      }
+      writeListToFile(outputPath, System.lineSeparator() +
+                                    "********* Sorted Country Name (DSC) *********" +
+                                    System.lineSeparator(),
+                                    descendingSortedCountries,
+                                    StandardOpenOption.APPEND);
    }
 
    /**
@@ -371,7 +328,8 @@ public class CountryLab
     * @param outputPath the path of the output file
     * @param countries  the list of Country objects to filter
     */
-   private static void writeUniqueFirstLetters(final Path outputPath, final List<Country> countries)
+   private static void writeUniqueFirstLetters(final Path outputPath,
+                                               final List<Country> countries)
    {
       final List<String> filteredCountryNames;
       final Stream<Country> countryStream;
@@ -390,16 +348,10 @@ public class CountryLab
          }
       });
 
-      try
-      {
-         Files.writeString(outputPath, System.lineSeparator() +
-                 "********* Unique First Letters *********" +
-                 System.lineSeparator(), StandardOpenOption.APPEND);
-         Files.write(outputPath, filteredCountryNames, StandardOpenOption.APPEND);
-      } catch(final IOException e)
-      {
-         System.out.println("Error writing sorted country names to file. " + e.getMessage());
-      }
+      writeListToFile(outputPath, System.lineSeparator() +
+                                     "********* Unique First Letters *********" +
+                                     System.lineSeparator(), filteredCountryNames,
+                                     StandardOpenOption.APPEND);
    }
 
    /**
@@ -408,44 +360,35 @@ public class CountryLab
     * @param outputPath the path of the output file
     * @param countries  the list of Country objects to count
     */
-   private static void writeTotalCountryNames(final Path outputPath, final List<Country> countries)
+   private static void writeTotalCountryNames(final Path outputPath,
+                                              final List<Country> countries)
    {
-      try
-      {
-         Files.writeString(outputPath, System.lineSeparator() +
-                 "********* Total country names: " +
-                 filteredCountries(countries).count() +
-                 System.lineSeparator(),
-                 StandardOpenOption.APPEND);
-      } catch(final IOException e)
-      {
-         System.out.println("Error counting and writing total country name. " + e.getMessage());
-      }
+      writeStringToFile(outputPath, System.lineSeparator() +
+                      "********* Total country names: " +
+                      filteredCountries(countries).count() +
+                      System.lineSeparator(),
+                      StandardOpenOption.APPEND);
    }
 
-   /* ASK JASON */
    /**
     * Writes the longest country name to the specified output file.
     *
     * @param outputPath the path of the output file
     * @param countries  the list of Country objects to filter
     */
-   private static void writeLongestCountryName(final Path outputPath, final List<Country> countries)
+   private static void writeLongestCountryName(final Path outputPath,
+                                               final List<Country> countries)
    {
-      filteredCountries(countries)
-              .max(Comparator.comparing(c -> c.getName().length()))
-              .ifPresent(longestName ->
-              {
-                 try
-                 {
-                    Files.writeString(outputPath, System.lineSeparator() +
-                            "Longest country name: " + longestName +
-                            System.lineSeparator(), StandardOpenOption.APPEND);
-                 } catch(final IOException e)
-                 {
-                    System.out.println("Error writing longest country name to file. " + e.getMessage());
-                 }
-              });
+      final Optional<Country> longestName;
+
+      longestName = filteredCountries(countries)
+              .max(Comparator.comparing(c -> c.getName().length()));
+
+      longestName.ifPresent(c -> writeStringToFile(outputPath, System.lineSeparator() +
+                                                   "Longest country name: " + longestName.get() +
+                                                   System.lineSeparator(),
+                                                   StandardOpenOption.APPEND)
+      );
    }
 
    /**
@@ -454,24 +397,19 @@ public class CountryLab
     * @param outputPath the path of the output file
     * @param countries  the list of Country objects to filter
     */
-   private static void writeShortestCountryName(final Path outputPath, final List<Country> countries)
+   private static void writeShortestCountryName(final Path outputPath,
+                                                final List<Country> countries)
    {
-      filteredCountries(countries)
-              .min(Comparator.comparing(c -> c.getName().length()))
-              .ifPresent(shortestName ->
-              {
-                 try
-                 {
-                    Files.writeString(outputPath, System.lineSeparator() +
-                                             "Shortest Country Name: " + shortestName +
-                                             System.lineSeparator(),
-                                             StandardOpenOption.APPEND);
+      final Optional<Country> shortestName;
 
-                 } catch(final IOException e)
-                 {
-                    System.out.println("Error writing shortest country name to file " + e.getMessage());
-                 }
-              });
+      shortestName = filteredCountries(countries)
+              .min(Comparator.comparing(c -> c.getName().length()));
+
+      shortestName.ifPresent(country -> writeStringToFile(outputPath, System.lineSeparator() +
+                                                         "Shortest Country Name: " + country +
+                                                         System.lineSeparator(),
+                                                         StandardOpenOption.APPEND)
+      );
    }
 
    /**
@@ -480,31 +418,16 @@ public class CountryLab
     * @param outputPath the path of the output file
     * @param countries  the list of Country objects to convert
     */
-   private static void writeCountryNameInUpperCase(final Path outputPath, final List<Country> countries)
+   private static void writeCountryNameInUpperCase(final Path outputPath,
+                                                   final List<Country> countries)
    {
-      try
-      {
-         Files.writeString(outputPath, System.lineSeparator() +
-                 "******** Country Name in UPPERCASE ********" +
-                 System.lineSeparator(), StandardOpenOption.APPEND);
-         filteredCountries(countries)
-                 .forEach(c ->
-                 {
-                    try
-                    {
-                       Files.writeString(outputPath, c.getName().toUpperCase() +
-                                       System.lineSeparator(),
-                               StandardOpenOption.APPEND);
-                    } catch(final IOException e)
-                    {
-                       System.out.println("Error writing country names in UPPERCASE to file" + e.getMessage());
-                    }
+      final List<String> resultUpperCase = filteredCountries(countries)
+                                                .map(c -> c.getName().toUpperCase())
+                                                .toList();
 
-                 });
-      } catch(final IOException e)
-      {
-         System.out.println("Error writing country names in UPPERCASE to file " + e.getMessage());
-      }
+      writeListToFile(outputPath, System.lineSeparator() +
+              "******** Country Name in UPPERCASE ********" +
+              System.lineSeparator(), resultUpperCase, StandardOpenOption.APPEND);
    }
 
    /**
@@ -513,7 +436,8 @@ public class CountryLab
     * @param outputPath the path of the output file
     * @param countries  the list of Country objects to filter
     */
-   private static void writeCountriesWithMoreThanOneWord(final Path outputPath, final List<Country> countries)
+   private static void writeCountriesWithMoreThanOneWord(final Path outputPath,
+                                                         final List<Country> countries)
    {
       final List<String> filteredCountryNames;
       final Stream<Country> countryStream;
@@ -523,16 +447,10 @@ public class CountryLab
 
       countryStream.filter(c -> c.getName().contains(" ")).forEach(c -> filteredCountryNames.add(c.getName()));
 
-      try
-      {
-         Files.writeString(outputPath,
-                 System.lineSeparator() + "*******Countries With Multiple Words*******" + System.lineSeparator(),
-                 StandardOpenOption.APPEND);
-         Files.write(outputPath, filteredCountryNames, StandardOpenOption.APPEND);
-      } catch (final IOException e)
-      {
-         System.out.println("Error writing countries with multiple words: " + e.getMessage());
-      }
+      writeListToFile(outputPath, System.lineSeparator() +
+                              "*******Countries With Multiple Words*******" + System.lineSeparator(),
+                              filteredCountryNames,
+                              StandardOpenOption.APPEND);
    }
 
    /**
@@ -541,7 +459,8 @@ public class CountryLab
     * @param outputPath the path of the output file
     * @param countries  the list of Country objects to count characters
     */
-   private static void writeCharacterCount(final Path outputPath, final List<Country> countries)
+   private static void writeCharacterCount(final Path outputPath,
+                                           final List<Country> countries)
    {
       final Map<String, Integer> countryMap;
       final Stream<Country> countryStream;
@@ -551,28 +470,16 @@ public class CountryLab
 
       countryStream.forEach(c -> countryMap.put(c.getName(), c.getName().length()));
 
-      try
-      {
-         Files.writeString(outputPath,
-                 System.lineSeparator() + "*******Countries and Character Counts*******" + System.lineSeparator(),
-                 StandardOpenOption.APPEND);
-      } catch (final IOException e)
-      {
-         System.out.println("Error when writing char count to file: " + e.getMessage());
-      }
-
+      writeStringToFile(outputPath, System.lineSeparator() +
+                        "*******Countries and Character Counts*******" + System.lineSeparator(),
+                              StandardOpenOption.APPEND);
 
       countryMap.forEach((c, l) ->
       {
-         try
-         {
-            final String str = String.format("%s: %d characters", c, l) +
-                    System.lineSeparator();
-            Files.writeString(outputPath, str, StandardOpenOption.APPEND);
-         } catch (final IOException e)
-         {
-            System.out.println("Error when writing char count to file: " + e.getMessage());
-         }
+         final String str = String.format("%s: %d characters", c, l) +
+                 System.lineSeparator();
+
+         writeStringToFile(outputPath, str, StandardOpenOption.APPEND);
       });
    }
 
@@ -582,7 +489,8 @@ public class CountryLab
     * @param outputPath the path of the output file
     * @param countries  the list of Country objects to check
     */
-   private static void writeAnyNameStartsWithZ(final Path outputPath, final List<Country> countries)
+   private static void writeAnyNameStartsWithZ(final Path outputPath,
+                                               final List<Country> countries)
    {
       final boolean anyStartsWithZ;
 
@@ -590,18 +498,8 @@ public class CountryLab
                                     .anyMatch(c -> c.getName()
                                     .toLowerCase().startsWith("z"));
 
-      try
-      {
-         Files.writeString(outputPath, System.lineSeparator() +
-                           "Any country name starts with 'z': " + anyStartsWithZ +
-                           System.lineSeparator(),
-                           StandardOpenOption.APPEND);
-
-      } catch(final IOException e)
-      {
-         System.out.println("Error checking and writing any " +
-                              "country name starting with 'z' " + e.getMessage());
-      }
+      writeStringResultToFile(outputPath, "Any country name starts with 'z': ",
+                              anyStartsWithZ, StandardOpenOption.APPEND);
    }
 
    /**
@@ -611,22 +509,60 @@ public class CountryLab
     * @param countries  the list of Country objects to check
     */
    private static void writeIsAllNamesLongerThan3(final Path outputPath,
-                                                final List<Country> countries)
+                                                  final List<Country> countries)
    {
       final boolean isAllCountryNameLongerThan3;
       
       isAllCountryNameLongerThan3 = filteredCountries(countries).allMatch(c -> c.getName().length() > 3);
 
+      writeStringResultToFile(outputPath, "Are all country names longer than 3 characters: ",
+                              isAllCountryNameLongerThan3, StandardOpenOption.APPEND);
+   }
+
+   private static <T> void writeStringResultToFile(final Path outputPath,
+                                                   final String criterion,
+                                                   final T result,
+                                                   final OpenOption... options)
+   {
       try
       {
-         Files.writeString(outputPath, System.lineSeparator() +
-                           "Are all country names longer than 3 characters: " +
-                           isAllCountryNameLongerThan3 + System.lineSeparator(),
-                           StandardOpenOption.APPEND);
+         Files.writeString(outputPath, System.lineSeparator() + criterion +
+                 System.lineSeparator() + result.toString() + System.lineSeparator(),
+                 options);
       } catch(final IOException e)
       {
-         System.out.println("Error checking and writing whether all country names " +
-                 "are longer than 3 characters " + e.getMessage());
+         System.out.println("Error writing " + criterion + " to file, " + e.getMessage());
+      }
+
+   }
+
+   private static <T> void writeStringToFile(final Path outputPath,
+                                             final T result,
+                                             final OpenOption... options)
+   {
+      try
+      {
+         Files.writeString(outputPath,  result.toString(),
+                 options);
+      } catch(final IOException e)
+      {
+         System.out.println("Error writing " + result.toString()  + " to file, " + e.getMessage());
+      }
+   }
+
+   private static void writeListToFile(final Path outputPath,
+                                       final String criterion,
+                                       final List<String> result,
+                                       final OpenOption... options)
+   {
+      try
+      {
+         writeStringToFile(outputPath, criterion,
+                           StandardOpenOption.APPEND);
+         Files.write(outputPath, result, options);
+      } catch(final IOException e)
+      {
+         System.out.println("Error writing " + result.toString() + " to file, " + e.getMessage());
       }
    }
 }

@@ -1,4 +1,4 @@
-********* Long country name ***********
+Country names longer than 10 characters:
 Afghanistan
 Antigua and Barbuda
 Bosnia and Herzegovina
@@ -54,7 +54,7 @@ Oman
 Peru
 Togo
 
-********* Country Name Starts With 'A' ***********
+Country names starting with 'A':
 Afghanistan
 Albania
 Algeria
@@ -84,7 +84,7 @@ United Arab Emirates
 United Kingdom
 United States
 
-*******Countries Sorted By Name (ASC)*******
+********* Sorted Country Name (DSC) *********
 Afghanistan
 Albania
 Algeria
@@ -946,6 +946,8 @@ Mexico: 6 characters
 Uganda: 6 characters
 Suriname: 8 characters
 
-Any country name starts with 'z': true
+Any country name starts with 'z': 
+true
 
-Are all country names longer than 3 characters: true
+Are all country names longer than 3 characters: 
+true
