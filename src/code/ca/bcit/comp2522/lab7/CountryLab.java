@@ -2,8 +2,18 @@ package ca.bcit.comp2522.lab7;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -385,7 +395,7 @@ public class CountryLab
               .max(Comparator.comparing(c -> c.getName().length()));
 
       longestName.ifPresent(c -> writeStringToFile(outputPath, System.lineSeparator() +
-                                                   "Longest country name: " + longestName.get() +
+                                                   "Longest country name: " + c.getName() +
                                                    System.lineSeparator(),
                                                    StandardOpenOption.APPEND)
       );
@@ -421,7 +431,9 @@ public class CountryLab
    private static void writeCountryNameInUpperCase(final Path outputPath,
                                                    final List<Country> countries)
    {
-      final List<String> resultUpperCase = filteredCountries(countries)
+      final List<String> resultUpperCase;
+
+      resultUpperCase = filteredCountries(countries)
                                                 .map(c -> c.getName().toUpperCase())
                                                 .toList();
 
@@ -445,7 +457,8 @@ public class CountryLab
       filteredCountryNames = new ArrayList<>();
       countryStream = filteredCountries(countries);
 
-      countryStream.filter(c -> c.getName().contains(" ")).forEach(c -> filteredCountryNames.add(c.getName()));
+      countryStream.filter(c -> c.getName().contains(" "))
+                                 .forEach(c -> filteredCountryNames.add(c.getName()));
 
       writeListToFile(outputPath, System.lineSeparator() +
                               "*******Countries With Multiple Words*******" + System.lineSeparator(),
@@ -465,18 +478,21 @@ public class CountryLab
       final Map<String, Integer> countryMap;
       final Stream<Country> countryStream;
 
-      countryMap = new HashMap<>();
       countryStream = filteredCountries(countries);
 
-      countryStream.forEach(c -> countryMap.put(c.getName(), c.getName().length()));
+      countryMap = countryStream.collect(HashMap::new,
+                                          (m, c) -> m.put(c.getName(), c.getName().length()),
+                                          HashMap::putAll);
 
       writeStringToFile(outputPath, System.lineSeparator() +
-                        "*******Countries and Character Counts*******" + System.lineSeparator(),
+                        "******* Countries and Character Counts *******" + System.lineSeparator(),
                               StandardOpenOption.APPEND);
 
       countryMap.forEach((c, l) ->
       {
-         final String str = String.format("%s: %d characters", c, l) +
+         final String str;
+
+         str = String.format("%s: %d characters", c, l) +
                  System.lineSeparator();
 
          writeStringToFile(outputPath, str, StandardOpenOption.APPEND);
@@ -495,8 +511,7 @@ public class CountryLab
       final boolean anyStartsWithZ;
 
       anyStartsWithZ = filteredCountries(countries)
-                                    .anyMatch(c -> c.getName()
-                                    .toLowerCase().startsWith("z"));
+                                    .anyMatch(c -> c.getName().toLowerCase().startsWith("z"));
 
       writeStringResultToFile(outputPath, "Any country name starts with 'z': ",
                               anyStartsWithZ, StandardOpenOption.APPEND);
@@ -511,12 +526,14 @@ public class CountryLab
    private static void writeIsAllNamesLongerThan3(final Path outputPath,
                                                   final List<Country> countries)
    {
+      final int MIN_CHAR = 3;
       final boolean isAllCountryNameLongerThan3;
       
-      isAllCountryNameLongerThan3 = filteredCountries(countries).allMatch(c -> c.getName().length() > 3);
+      isAllCountryNameLongerThan3 = filteredCountries(countries)
+                                          .allMatch(c -> c.getName().length() > MIN_CHAR);
 
-      writeStringResultToFile(outputPath, "Are all country names longer than 3 characters: ",
-                              isAllCountryNameLongerThan3, StandardOpenOption.APPEND);
+      writeStringResultToFile(outputPath, "Are all country names longer than " + MIN_CHAR +
+                      " characters: ", isAllCountryNameLongerThan3, StandardOpenOption.APPEND);
    }
 
    private static <T> void writeStringResultToFile(final Path outputPath,
