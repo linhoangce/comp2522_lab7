@@ -38,6 +38,8 @@ import java.util.stream.Stream;
  */
 public class CountryLab
 {
+   public static final int MIN_CHAR = 3;
+   public static final int MIN_WORD = 4;
    /**
     * Entry point of the CountryLab application. Reads country names from an input file, performs
     * various operations on the list of countries, and writes the results to an output file.
@@ -84,10 +86,10 @@ public class CountryLab
       writeLongestCountryName(outputPath, countriesList);
       writeShortestCountryName(outputPath, countriesList);
       writeCountryNameInUpperCase(outputPath, countriesList);
-      writeCountriesWithMoreThanOneWord(outputPath, countriesList);
+      writeCountriesWithMoreThanNWord(outputPath, countriesList, MIN_WORD);
       writeCharacterCount(outputPath, countriesList);
       writeAnyNameStartsWithZ(outputPath, countriesList);
-      writeIsAllNamesLongerThan3(outputPath, countriesList);
+      writeIsAllNamesLongerThanN(outputPath, countriesList, MIN_CHAR);
    }
 
    private static Path createOutputFile(final Path rootDirPath,
@@ -448,8 +450,9 @@ public class CountryLab
     * @param outputPath the path of the output file
     * @param countries  the list of Country objects to filter
     */
-   private static void writeCountriesWithMoreThanOneWord(final Path outputPath,
-                                                         final List<Country> countries)
+   private static void writeCountriesWithMoreThanNWord(final Path outputPath,
+                                                       final List<Country> countries,
+                                                       final int n)
    {
       final List<String> filteredCountryNames;
       final Stream<Country> countryStream;
@@ -457,13 +460,22 @@ public class CountryLab
       filteredCountryNames = new ArrayList<>();
       countryStream = filteredCountries(countries);
 
-      countryStream.filter(c -> c.getName().contains(" "))
+      countryStream.filter(c -> findNWordsInString(c.getName(), n))
                                  .forEach(c -> filteredCountryNames.add(c.getName()));
 
       writeListToFile(outputPath, System.lineSeparator() +
                               "*******Countries With Multiple Words*******" + System.lineSeparator(),
                               filteredCountryNames,
                               StandardOpenOption.APPEND);
+   }
+
+   private static boolean findNWordsInString(final String s, final int n)
+   {
+      final String[] splitString;
+
+      splitString = s.split(" ");
+
+      return splitString.length > n;
    }
 
    /**
@@ -523,17 +535,17 @@ public class CountryLab
     * @param outputPath the path of the output file
     * @param countries  the list of Country objects to check
     */
-   private static void writeIsAllNamesLongerThan3(final Path outputPath,
-                                                  final List<Country> countries)
+   private static void writeIsAllNamesLongerThanN(final Path outputPath,
+                                                  final List<Country> countries,
+                                                  final int n)
    {
-      final int MIN_CHAR = 3;
-      final boolean isAllCountryNameLongerThan3;
+      final boolean isAllCountryNameLongerThanN;
       
-      isAllCountryNameLongerThan3 = filteredCountries(countries)
-                                          .allMatch(c -> c.getName().length() > MIN_CHAR);
+      isAllCountryNameLongerThanN = filteredCountries(countries)
+                                          .allMatch(c -> c.getName().length() > n);
 
-      writeStringResultToFile(outputPath, "Are all country names longer than " + MIN_CHAR +
-                      " characters: ", isAllCountryNameLongerThan3, StandardOpenOption.APPEND);
+      writeStringResultToFile(outputPath, "Are all country names longer than " + n +
+                      " characters: ", isAllCountryNameLongerThanN, StandardOpenOption.APPEND);
    }
 
    private static <T> void writeStringResultToFile(final Path outputPath,

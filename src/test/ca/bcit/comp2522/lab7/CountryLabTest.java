@@ -12,8 +12,10 @@ public class CountryLabTest
     final Path matchesDir;
     final Path dataFile;
 
-    matchesDir = Paths.get("src", "matches");
-    dataFile   = matchesDir.resolve("data.txt");
+    public CountryLabTest() {
+        matchesDir = Paths.get("src", "matches");
+        dataFile = matchesDir.resolve("data.txt");
+    }
 
     @BeforeEach
     public void setUp() throws IOException
